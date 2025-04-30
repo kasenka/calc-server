@@ -106,7 +106,9 @@ public class AuthController {
             User user = (User) customUserDetailsService.loadUserByUsername(userCreateDTO.getUsername());
 
             return ResponseEntity.status(HttpStatus.ACCEPTED)
-                    .body(userMapper.map(user));
+                    .body(Map.of(
+                            "user", userMapper.map(user),
+                            "jwt", jwt));
 
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
