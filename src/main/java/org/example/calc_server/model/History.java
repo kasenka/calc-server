@@ -24,6 +24,7 @@ public class History {
     private String action;
 
     @NotBlank
+    @Column(name = "\"values\"")
     private String values;
 
     @NotBlank

@@ -1,5 +1,6 @@
 package org.example.calc_server.service;
 
+import org.example.calc_server.dto.OhmsLawGetDTO;
 import org.example.calc_server.jwt.JwtService;
 import org.example.calc_server.model.CurrencyRate;
 import org.example.calc_server.repository.CurrencyRateRepository;
@@ -55,17 +56,12 @@ public class CalculatorService {
 
     }
 
-    public String ohms_lawCalculate(Double voltage,
-                                    Double current,
-                                    Double resistance,
+    public String ohms_lawCalculate(OhmsLawGetDTO ohmsLawGetDTO,
                                     Authentication authentication) {
-//        if (Arrays.asList(voltage, current, resistance)
-//                .stream()
-//                .filter(ob -> ob == null)
-//                .count() > 1) {
-//            redirectAttributes.addFlashAttribute("error", "Wrong amount of values (must be 2)");
-//            return "redirect:/calculator";
-//        }
+        Double voltage = ohmsLawGetDTO.getVoltage(),
+                current = ohmsLawGetDTO.getCurrent(),
+                resistance = ohmsLawGetDTO.getResistance();
+
         String result = "";
         if (voltage == null) result = "voltage = " + current * resistance;
         if (current == null) result = "current = " + voltage / resistance;

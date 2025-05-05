@@ -3,33 +3,32 @@ package org.example.calc_server.controller;
 import jakarta.validation.Valid;
 import org.example.calc_server.config.CustomUserDetailsService;
 import org.example.calc_server.dto.UserCreateDTO;
-import org.example.calc_server.dto.UserDTO;
 import org.example.calc_server.jwt.JwtService;
 import org.example.calc_server.mapper.UserMapper;
 import org.example.calc_server.model.User;
 import org.example.calc_server.repository.UserRepository;
+import org.example.calc_server.service.ErrorService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/api")
 public class AuthController {
 
     private final UserRepository userRepository;
@@ -38,32 +37,34 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final UserMapper userMapper;
     private final CustomUserDetailsService customUserDetailsService;
+    private final ErrorService errorService;
 
     public AuthController(UserRepository userRepository, PasswordEncoder passwordEncoder,
                           JwtService jwtService, AuthenticationManager authenticationManager,
-                          UserMapper userMapper, CustomUserDetailsService customUserDetailsService) {
+                          UserMapper userMapper, CustomUserDetailsService customUserDetailsService,
+                          ErrorService errorService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
         this.userMapper = userMapper;
         this.customUserDetailsService = customUserDetailsService;
+        this.errorService = errorService;
     }
 
     @PostMapping(value = "/register", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> register(@RequestBody @Valid UserCreateDTO userCreateDTO,
                          BindingResult result){
 
-        if (result.hasErrors()){
-            Map<String, String> errors = result.getFieldErrors()
-                    .stream()
-                    .collect(Collectors.toMap(
-                            FieldError::getField,
-                            FieldError::getDefaultMessage,
-                            (existingValue, newValue) -> newValue
-                    ));
-
+        var errors = errorService.checkErrors(result);
+        if (errors != null){
             return ResponseEntity.badRequest().body(errors);
+        }
+
+
+        if (userRepository.findByUsername(userCreateDTO.getUsername()).isPresent()){
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Этот юзернейм уже занят"));
         }
 
         User user = userMapper.map(userCreateDTO);
@@ -76,19 +77,8 @@ public class AuthController {
     }
 
     @PostMapping(value = "/login", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> login(@RequestBody @Valid UserCreateDTO userCreateDTO,
+    public ResponseEntity<?> login(@RequestBody UserCreateDTO userCreateDTO,
                                    BindingResult result){
-        if (result.hasErrors()){
-            Map<String, String> errors = result.getFieldErrors()
-                    .stream()
-                    .collect(Collectors.toMap(
-                            FieldError::getField,
-                            FieldError::getDefaultMessage,
-                            (existingValue, newValue) -> newValue
-                    ));
-
-            return ResponseEntity.badRequest().body(errors);
-        }
 
         try {
             Authentication authentication = authenticationManager.authenticate(
@@ -103,19 +93,15 @@ public class AuthController {
 
             String jwt = jwtService.generateToken(userCreateDTO.getUsername());
 
-            User user = (User) customUserDetailsService.loadUserByUsername(userCreateDTO.getUsername());
+            User user = userRepository.findByUsername(userCreateDTO.getUsername()).get();
 
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(Map.of(
                             "user", userMapper.map(user),
                             "jwt", jwt));
-
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Неверный логин или пароль"));
-        } catch (UsernameNotFoundException ex) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(Map.of("error", "Пользователь не найден"));
+                    .body(Map.of("error", "Неверный юзернейм или пароль"));
         }
     }
 }

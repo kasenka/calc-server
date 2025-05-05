@@ -1,31 +1,35 @@
 package org.example.calc_server.controller;
 
-import org.example.calc_server.model.CurrencyRate;
-import org.example.calc_server.repository.CurrencyRateRepository;
-import org.example.calc_server.repository.HistoryRepository;
-import org.example.calc_server.repository.UserRepository;
+import jakarta.validation.Valid;
+import org.example.calc_server.dto.CurrencyGetDTO;
+import org.example.calc_server.dto.OhmsLawGetDTO;
+
+import org.example.calc_server.service.CalculatorService;
+import org.example.calc_server.service.HistoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.util.Arrays;
+import java.util.Map;
 
 @RestController
+@RequestMapping("/api/calculator/user")
+@PreAuthorize("hasRole('ROLE_USER')")
 public class UserController {
 
     @Autowired
-    private CurrencyRateRepository currencyRateRepository;
+    private HistoryService historyService;
 
-    @Autowired
-    private HistoryRepository historyRepository;
+    @PostMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> userHistory(Authentication authentication) {
 
-    @Autowired
-    private UserRepository userRepository;
+        var history = historyService.getUserHistory(authentication);
 
-    @GetMapping(value = "/calculator", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> showCalculator() {
-
+        return ResponseEntity.ok()
+                .body(Map.of("history",history));
     }
 }
