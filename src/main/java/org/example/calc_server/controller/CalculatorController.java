@@ -32,7 +32,7 @@ public class CalculatorController {
     private ErrorService errorService;
 
 
-    @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> showCalculator() {
         return ResponseEntity.ok()
                 .body(Map.of("currencies", calculatorService.getCurrencies()));
@@ -49,8 +49,8 @@ public class CalculatorController {
             return ResponseEntity.badRequest().body(errors);
         }
 
-        var result = calculatorService.currencyConvert(currencyGetDTO.getId(), currencyGetDTO.getAmount()
-                ,authentication);
+        var result = calculatorService.currencyConvert(currencyGetDTO.getId(), currencyGetDTO.getAmount(),
+                authentication);
 
         return ResponseEntity.ok()
                 .body(Map.of("result",result));
@@ -69,7 +69,7 @@ public class CalculatorController {
         if (Arrays.asList(ohmsLawGetDTO.getVoltage(), ohmsLawGetDTO.getCurrent(), ohmsLawGetDTO.getResistance())
                 .stream()
                 .filter(ob -> ob == null)
-                .count() > 1) {
+                .count() != 1) {
             return ResponseEntity.badRequest()
                     .body(Map.of("error", "Недопустимое кол-во значений (нужно 2)"));
         }

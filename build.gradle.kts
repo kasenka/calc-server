@@ -38,6 +38,8 @@ dependencies {
 
 
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+
     implementation("net.datafaker:datafaker:2.0.1")
     implementation("org.instancio:instancio-junit:3.3.0")
     testImplementation("com.h2database:h2:2.2.224")

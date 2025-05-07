@@ -32,7 +32,7 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/login","/api/register" ).permitAll()
-                        .requestMatchers("/api/calculator/user/**").hasRole("USER")
+                        .requestMatchers("/api/calculator/user/**", "/api/calculator/currency").hasRole("USER")
                         .requestMatchers("/api/calculator/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
@@ -50,4 +50,6 @@ public class SecurityConfig {
             throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
+
+
 }

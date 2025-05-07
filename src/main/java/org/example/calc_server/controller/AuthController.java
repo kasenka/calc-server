@@ -95,10 +95,12 @@ public class AuthController {
 
             User user = userRepository.findByUsername(userCreateDTO.getUsername()).get();
 
+
             return ResponseEntity.status(HttpStatus.ACCEPTED)
                     .body(Map.of(
                             "user", userMapper.map(user),
-                            "jwt", jwt));
+                            "jwt", jwt,
+                            "aut", authentication));
         } catch (BadCredentialsException ex) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Неверный юзернейм или пароль"));

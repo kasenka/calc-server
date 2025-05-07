@@ -148,10 +148,10 @@ public class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(requestJson))
                     .andDo(print())
-                    .andExpectAll(
-                            status().isBadRequest(),
-                            jsonPath("$.errors").exists(),
-                            jsonPath(("$.errors"), Matchers.hasItem(errorDescription)));
+            .andExpectAll(
+                    status().isBadRequest(),
+                    jsonPath("$.errors").exists(),
+                    jsonPath(("$.errors"), Matchers.hasItem(errorDescription)));
         }
     }
 
@@ -176,8 +176,9 @@ public class AuthControllerTest {
                             status().isAccepted(),
                             jsonPath("$.user.username").value(userCreateDTO.getUsername()),
                             jsonPath("$.user.role").value("USER"),
-                            jsonPath("$.jwt").exists()
-                    );
+                            jsonPath("$.jwt").exists(),
+                            jsonPath("$.aut").exists()
+                    ).andDo(print());
         }
 
         static Stream<Arguments> invalidUserLogin() {
