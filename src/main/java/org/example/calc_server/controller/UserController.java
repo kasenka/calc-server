@@ -24,7 +24,7 @@ public class UserController {
     @Autowired
     private HistoryService historyService;
 
-    @PostMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "/history", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> userHistory(Authentication authentication) {
 
         var history = historyService.getUserHistory(authentication);
