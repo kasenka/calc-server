@@ -49,13 +49,13 @@ public class AdminController {
 
 
     @GetMapping(value = "/createRate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createRate(){
+    public ResponseEntity<?> getRates(){
         return ResponseEntity.ok()
                 .body(Map.of("currencies", calculatorService.getCurrencies()));
     }
 
     @PostMapping(value = "/createRate", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> saveRate(@RequestBody @Valid CurrencyCreateDTO currencyCreateDTO,
+    public ResponseEntity<?> createRate(@RequestBody @Valid CurrencyCreateDTO currencyCreateDTO,
                                         BindingResult bResult) {
 
         var errors = errorService.checkErrors(bResult);

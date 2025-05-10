@@ -34,9 +34,6 @@ public class UserControllerTest {
     private static Faker faker;
 
     @Autowired
-    private CurrencyRateRepository currencyRateRepository;
-
-    @Autowired
     private UserRepository userRepository;
 
     @Autowired

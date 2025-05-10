@@ -12,13 +12,12 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CurrencyCreateDTO {
-    @NotBlank
+    @NotBlank(message = "Значение не может быть пустым")
     private String fromCurrency;
 
-    @NotBlank
+    @NotBlank(message = "Значение не может быть пустым")
     private String toCurrency;
 
-    @NotNull
-    @Positive
+    @Positive(message = "Значение не может быть < 0")
     private Double rate;
 }
